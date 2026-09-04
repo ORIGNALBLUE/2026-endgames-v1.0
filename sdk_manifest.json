@@ -1,10 +1,11 @@
 {
   "name": "AetherScaler Bridge",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "build_date": "2026-09-05",
   "base_core": "OptiScaler 0.9.4-final",
   "languages": ["zh-TW","en-US","ja-JP","ko-KR","de-DE","fr-FR","es-ES","pt-BR"],
   "update_model": "audit-and-stage",
+  "diagnostics": "privacy-redacted local support bundle; no telemetry or automatic upload",
   "official_sources": {
     "OptiScaler": "optiscaler/OptiScaler",
     "Intel XeSS": "intel/xess",
