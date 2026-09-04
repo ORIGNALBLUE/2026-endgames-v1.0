@@ -1,0 +1,45 @@
+name: Lifeline compatibility report
+description: Share a sanitized AetherScaler Lifeline result. Do not paste PrivateSupport logs without reviewing them.
+title: "[Lifeline] "
+labels: ["lifeline"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for testing AetherScaler Lifeline. GitHub reports are public and tied to your GitHub account. Paste only the PublicSummary or other data you have reviewed.
+  - type: input
+    id: game
+    attributes:
+      label: Game
+      placeholder: Game title and version
+    validations:
+      required: true
+  - type: dropdown
+    id: api
+    attributes:
+      label: Graphics API
+      options: [DirectX 11, DirectX 12, Vulkan, Unknown]
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: PublicSummary / sanitized metadata
+      description: Paste the contents of PublicSummary_*.json or the generated GitHub report.
+      render: json
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: Result
+      description: FPS before/after, visual issues, crashes, stutter, or anything that worked well.
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy check
+      options:
+        - label: I reviewed the text above and did not intentionally include private paths, user names, IP/MAC addresses, serials, or raw private logs.
+          required: true

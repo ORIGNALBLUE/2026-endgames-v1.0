@@ -1,0 +1,8 @@
+{
+  "schema": 1,
+  "mode": "opt-in",
+  "github_repository": "ORIGNALBLUE/2026-endgames-v1.0",
+  "issue_template": "lifeline-report.yml",
+  "public_summary_allowed_fields": ["schema","report_id","generated_at","lifeline_version","locale","gpu","driver","vram_bucket","os","tier","api","upscaler","frame_generation","runtime_versions","result"],
+  "never_collect": ["username","user_profile","computer_name","full_paths","ip","mac","hardware_serial","machine_uuid","browser_data","documents"]
+}

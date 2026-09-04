@@ -1,0 +1,32 @@
+name: Build Lifeline i18n Core
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Clone OptiScaler upstream
+        shell: pwsh
+        run: git clone --recursive --depth 1 https://github.com/optiscaler/OptiScaler.git upstream
+      - name: Apply Lifeline i18n patch
+        shell: pwsh
+        run: ./SourcePatches/OptiScaler-i18n/Apply-Lifeline-I18n.ps1 -SourceRoot ./upstream
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
+      - name: Build Release
+        shell: pwsh
+        run: msbuild /m /p:Configuration=Release ./upstream /verbosity:minimal
+      - name: Package runtime
+        shell: pwsh
+        run: 7z a Lifeline-i18n-Core.7z ./upstream/x64/Release/a/*.*
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Lifeline-i18n-Core
+          path: Lifeline-i18n-Core.7z
+          compression-level: 0
