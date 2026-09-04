@@ -1,6 +1,12 @@
 name: SDK Tracker
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/sdk-tracker.yml'
+      - 'Tools/Update-SDKTracker.ps1'
+      - 'sdk_tracker.json'
   schedule:
     - cron: '17 3 * * *'
   workflow_dispatch:
