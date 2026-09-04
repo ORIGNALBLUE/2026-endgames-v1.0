@@ -1,21 +1,18 @@
-# AetherScaler Lifeline 0.1 / 續命版
+# AetherScaler Lifeline 0.2 / 續命版 — Playability Edition
 
-Legacy-GPU rescue branch of AetherScaler. Target: make older GPUs playable before chasing maximum image quality.
+A public-friendly legacy/low-end GPU rescue package built around a simplified OptiScaler deployment flow.
 
-## Target hardware
-- NVIDIA RTX 20 / 30 series
-- AMD Radeon RX 6000 (RDNA2)
-- AMD Radeon RX 5000 (RDNA1)
-- GeForce GTX 16 / 10 and other compatible SM6.x GPUs
-
-## Routing policy
-- RTX 20/30: DLSS SR first, XeSS/FSR 3.1 fallback.
-- RX 6000: FSR 3.1 first, XeSS fallback, external FSR 4.0.2 optional.
-- RX 5000 / GTX: FSR 3.1 first, XeSS only when the runtime path succeeds.
-- FG is OFF by default and gated by measured pre-FG FPS.
-- FSR 4.0.2c is explicitly excluded.
+## What changed in 0.2
+- 8-language external manager with live language switching.
+- Simplified Play / Advanced / Support layout.
+- Recommended route uses detected GPU tier + measured pre-FG FPS.
+- PublicSummary + PrivateSupport privacy split; nothing uploads automatically.
+- GitHub issue workflow for opt-in compatibility reports.
+- Lifeline i18n Core patch kit adds a compact multilingual in-game panel and CJK glyph ranges.
+- FSR 4.0.2c remains blocked; FSR 4.0.2 is manual experimental only.
+- Backup/restore and anti-cheat deployment guard remain enabled.
 
 ## Important
-The included ASR-Lite HLSL file is a custom spatial fallback prototype only; it is not yet connected to the interception runtime.
+The bundled OptiScaler binary is the unmodified upstream-derived runtime supplied to this project. The **native in-game multilingual Lifeline panel requires building the included GPL source patch against OptiScaler**. Until that patched DLL is built, the external Lifeline manager is multilingual while OptiScaler's stock advanced menu remains English.
 
-Use only in offline/single-player/mod-friendly games. No anti-cheat or DRM bypass is implemented.
+See `Docs/QUICKSTART_ZH-TW_EN.md` and `Docs/PRIVACY_ZH-TW_EN.md`.
