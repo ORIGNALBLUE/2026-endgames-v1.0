@@ -1,0 +1,12 @@
+{
+  "language_name":"繁體中文",
+  "app_title":"AetherScaler Bridge 1.1.1 / 三芯橋",
+  "tab_home":"首頁","tab_advanced":"進階","tab_sdk":"SDK 與更新","tab_help":"說明",
+  "language":"語言","game_folder":"遊戲 EXE 資料夾","browse":"瀏覽","detected_gpu":"偵測到的 GPU",
+  "hook":"Hook / Proxy 名稱","preset":"快速預設","preset_auto":"自動 / 建議",
+  "frame_generation":"畫格生成","spoofing":"顯卡廠商欺騙","apply":"套用","restore":"還原最新備份",
+  "scan_local":"掃描本機","check_online":"檢查官方版本","fetch_sdks":"下載官方 SDK 壓縮包","auto_check":"自動檢查間隔",
+  "compatibility":"相容性清單","manual":"說明書","open_upstream":"開啟 OptiScaler 官方相容性 Wiki",
+  "export_diagnostics":"匯出診斷包","diagnostics_privacy":"診斷 ZIP 只會留在本機；公開分享前請先檢查內容。","diagnostics_done":"診斷包已建立",
+  "safety_note":"僅供單機、離線、允許 Mod 的環境；不提供反作弊或 DRM 繞過。"
+}
