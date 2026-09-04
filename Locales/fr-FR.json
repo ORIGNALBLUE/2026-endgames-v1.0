@@ -1,9 +1,1 @@
-{
-  "language_name":"Français","app_title":"AetherScaler Bridge 1.1.1",
-  "tab_home":"Accueil","tab_advanced":"Avancé","tab_sdk":"SDK et mises à jour","tab_help":"Aide","language":"Langue",
-  "game_folder":"Dossier de l’exécutable du jeu","browse":"Parcourir","detected_gpu":"GPU détecté","preset":"Préréglage rapide",
-  "frame_generation":"Génération d’images","spoofing":"Spoofing du fournisseur GPU","apply":"Appliquer","restore":"Restaurer la dernière sauvegarde",
-  "scan_local":"Scanner localement","check_online":"Vérifier les versions officielles","fetch_sdks":"Télécharger les SDK officiels",
-  "compatibility":"Compatibilité","manual":"Manuel","export_diagnostics":"Exporter le diagnostic",
-  "diagnostics_privacy":"Le ZIP de diagnostic reste local. Vérifiez-le avant partage.","diagnostics_done":"Diagnostic créé"
-}
+{"language_name":"Français","app_title":"AetherScaler Lifeline 0.2 / Playability Edition","tab_play":"Jouer","tab_advanced":"Avancé","tab_support":"Assistance","language":"Langue","game_folder":"Dossier du jeu","browse":"Parcourir","detected_gpu":"GPU détecté","tier":"Niveau matériel","base_fps":"FPS mesurés avant FG","strategy":"Stratégie","recommended":"Recommandé","low_latency":"Faible latence","max_fps":"FPS maximum","apply":"Appliquer la recommandation","restore":"Restaurer la dernière sauvegarde","ready":"Prêt","upscaler":"Upscaler","frame_generation":"Génération d’images","export_support":"Exporter le diagnostic","prepare_github":"Préparer le rapport GitHub","privacy_title":"Confidentialité"}

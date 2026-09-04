@@ -1,9 +1,1 @@
-{
-  "language_name":"Español","app_title":"AetherScaler Bridge 1.1.1",
-  "tab_home":"Inicio","tab_advanced":"Avanzado","tab_sdk":"SDK y actualizaciones","tab_help":"Ayuda","language":"Idioma",
-  "game_folder":"Carpeta del ejecutable del juego","browse":"Examinar","detected_gpu":"GPU detectada","preset":"Preajuste rápido",
-  "frame_generation":"Generación de fotogramas","spoofing":"Suplantación del proveedor GPU","apply":"Aplicar","restore":"Restaurar última copia",
-  "scan_local":"Escanear local","check_online":"Comprobar versiones oficiales","fetch_sdks":"Descargar SDK oficiales",
-  "compatibility":"Compatibilidad","manual":"Manual","export_diagnostics":"Exportar diagnóstico",
-  "diagnostics_privacy":"El ZIP de diagnóstico permanece local. Revísalo antes de compartir.","diagnostics_done":"Diagnóstico creado"
-}
+{"language_name":"Español","app_title":"AetherScaler Lifeline 0.2 / Playability Edition","tab_play":"Jugar","tab_advanced":"Avanzado","tab_support":"Soporte","language":"Idioma","game_folder":"Carpeta del juego","browse":"Examinar","detected_gpu":"GPU detectada","tier":"Nivel de hardware","base_fps":"FPS medidos antes de FG","strategy":"Estrategia","recommended":"Recomendado","low_latency":"Baja latencia","max_fps":"FPS máximos","apply":"Aplicar recomendación","restore":"Restaurar última copia","ready":"Listo","upscaler":"Reescalador","frame_generation":"Generación de fotogramas","export_support":"Exportar paquete de soporte","prepare_github":"Preparar informe de GitHub","privacy_title":"Privacidad"}
