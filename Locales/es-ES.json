@@ -1,0 +1,9 @@
+{
+  "language_name":"Español","app_title":"AetherScaler Bridge 1.1.1",
+  "tab_home":"Inicio","tab_advanced":"Avanzado","tab_sdk":"SDK y actualizaciones","tab_help":"Ayuda","language":"Idioma",
+  "game_folder":"Carpeta del ejecutable del juego","browse":"Examinar","detected_gpu":"GPU detectada","preset":"Preajuste rápido",
+  "frame_generation":"Generación de fotogramas","spoofing":"Suplantación del proveedor GPU","apply":"Aplicar","restore":"Restaurar última copia",
+  "scan_local":"Escanear local","check_online":"Comprobar versiones oficiales","fetch_sdks":"Descargar SDK oficiales",
+  "compatibility":"Compatibilidad","manual":"Manual","export_diagnostics":"Exportar diagnóstico",
+  "diagnostics_privacy":"El ZIP de diagnóstico permanece local. Revísalo antes de compartir.","diagnostics_done":"Diagnóstico creado"
+}
