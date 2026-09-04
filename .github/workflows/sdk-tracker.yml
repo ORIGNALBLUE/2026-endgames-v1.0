@@ -1,0 +1,30 @@
+name: SDK Tracker
+
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  track:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Refresh upstream SDK versions
+        shell: pwsh
+        run: ./Tools/Update-SDKTracker.ps1 -OutputPath ./sdk_tracker.json -Quiet
+      - name: Commit tracker changes
+        shell: pwsh
+        run: |
+          if (git status --porcelain sdk_tracker.json) {
+            git config user.name "aetherscaler-sdk-bot"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add sdk_tracker.json
+            git commit -m "chore: refresh upstream SDK tracker"
+            git push
+          } else {
+            Write-Host "No SDK version changes."
+          }
