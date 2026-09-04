@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "product": "AetherScaler Lifeline",
+  "version": "0.1.0",
+  "policy": {
+    "fsr402c": "blocked",
+    "external_fsr402": "manual-only",
+    "auto_replace_vendor_dlls": false
+  },
+  "tiers": [
+    {"id":"RTX20_30","match":["RTX 20","RTX 30"],"label":"GeForce RTX 20/30","primary":"dlss","fallback":["xess","fsr31"],"fg":"fsrfg","fg_default":false,"min_fg_fps":55,"notes":"Tensor cores present; prefer native DLSS SR."},
+    {"id":"RDNA2","match":["RX 6","Radeon RX 6"],"label":"Radeon RX 6000 / RDNA2","primary":"fsr31","fallback":["xess"],"fg":"fsrfg","fg_default":false,"min_fg_fps":55,"notes":"Official FSR 3.1 first. FSR 4.0.2 external/experimental only."},
+    {"id":"RDNA1","match":["RX 5","Radeon RX 5"],"label":"Radeon RX 5000 / RDNA1","primary":"fsr31","fallback":["xess_probe"],"fg":"fsrfg","fg_default":false,"min_fg_fps":60,"notes":"FSR 3.1 first; XeSS after capability probe."},
+    {"id":"GTX16","match":["GTX 16"],"label":"GeForce GTX 16","primary":"fsr31","fallback":["xess_probe"],"fg":"fsrfg","fg_default":false,"min_fg_fps":60,"notes":"No DLSS. Prefer FSR 3.1."},
+    {"id":"GTX10","match":["GTX 10"],"label":"GeForce GTX 10","primary":"fsr31","fallback":["xess_probe"],"fg":"off","fg_default":false,"min_fg_fps":999,"notes":"Upscaling-first; FG disabled by default."},
+    {"id":"OTHER","match":[],"label":"Other legacy GPU","primary":"fsr31","fallback":["xess_probe"],"fg":"off","fg_default":false,"min_fg_fps":999,"notes":"Conservative fallback; modern FSR path requires suitable Shader Model support."}
+  ]
+}
