@@ -1,0 +1,18 @@
+{
+  "name": "AetherScaler Lifeline",
+  "version": "0.1.0",
+  "branch": "legacy-lifeline",
+  "base_core": "OptiScaler 0.9.4",
+  "goal": "playability-first legacy GPU rescue",
+  "policy": {
+    "FSR 4.0.2c": "blocked",
+    "FSR 4.0.2": "external experimental only",
+    "anti_cheat_bypass": false,
+    "drm_bypass": false
+  },
+  "tracked_sdk_baseline": {
+    "Intel XeSS": "3.0.2",
+    "NVIDIA Streamline": "2.12.0",
+    "AMD FSR SDK": "2.3.0"
+  }
+}
