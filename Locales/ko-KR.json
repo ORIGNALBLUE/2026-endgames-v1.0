@@ -1,0 +1,9 @@
+{
+  "language_name":"한국어","app_title":"AetherScaler Bridge 1.1.1",
+  "tab_home":"홈","tab_advanced":"고급","tab_sdk":"SDK 및 업데이트","tab_help":"도움말","language":"언어",
+  "game_folder":"게임 EXE 폴더","browse":"찾아보기","detected_gpu":"감지된 GPU","preset":"빠른 프리셋",
+  "frame_generation":"프레임 생성","spoofing":"GPU 공급업체 스푸핑","apply":"적용","restore":"최신 백업 복원",
+  "scan_local":"로컬 검사","check_online":"공식 릴리스 확인","fetch_sdks":"공식 SDK 다운로드",
+  "compatibility":"호환성 목록","manual":"설명서","export_diagnostics":"진단 번들 내보내기",
+  "diagnostics_privacy":"진단 ZIP은 로컬에만 저장됩니다. 공유 전에 내용을 확인하세요.","diagnostics_done":"진단 번들이 생성되었습니다"
+}
