@@ -1,0 +1,29 @@
+{
+  "name": "AetherScaler Bridge",
+  "version": "1.1.0",
+  "build_date": "2026-09-05",
+  "base_core": "OptiScaler 0.9.4-final",
+  "languages": ["zh-TW","en-US","ja-JP","ko-KR","de-DE","fr-FR","es-ES","pt-BR"],
+  "update_model": "audit-and-stage",
+  "official_sources": {
+    "OptiScaler": "optiscaler/OptiScaler",
+    "Intel XeSS": "intel/xess",
+    "NVIDIA Streamline": "NVIDIA-RTX/Streamline",
+    "AMD FidelityFX": "GPUOpen-LibrariesAndSDKs/FidelityFX-SDK"
+  },
+  "bundled_runtime_baseline": {
+    "Intel XeSS": "2.0.2.68",
+    "Intel XeSS-FG": "1.3.1.78",
+    "Intel XeLL": "1.3.0.5",
+    "AMD FSR Upscaling": "4.1.1.2740",
+    "AMD Frame Generation": "4.0.1.2740"
+  },
+  "verified_official_releases_at_build": {
+    "Intel XeSS SDK": "3.0.2",
+    "NVIDIA Streamline SDK": "2.12.0",
+    "AMD FSR SDK": "2.3.0",
+    "AMD FSR Upscaling": "4.1.1",
+    "AMD FSR Frame Generation": "4.0.1",
+    "Intel XeLL": "1.3.2.10"
+  }
+}
