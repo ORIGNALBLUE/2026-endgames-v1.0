@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.1 — 2026-09-05
+- Added privacy-aware local session logging.
+- Added one-click Support Bundle export for future troubleshooting.
+- Support Bundle includes redacted logs, SDK tracker/manifest, settings summary, OS/GPU/driver data, runtime versions and SHA256 hashes.
+- Added standalone `Launch_Diagnostics.cmd` for cases where the main UI cannot start.
+- No automatic upload or telemetry is performed.
+
 ## 1.1.0 — 2026-09-05
 - Rebuilt UI around four tabs to reduce clutter.
 - Added runtime-selectable localization with 8 language packs.
