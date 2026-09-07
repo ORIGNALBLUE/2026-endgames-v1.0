@@ -1,0 +1,44 @@
+name: PowerShell Validation
+
+on:
+  push:
+    paths:
+      - '**/*.ps1'
+      - '.github/workflows/powershell-validation.yml'
+  pull_request:
+    paths:
+      - '**/*.ps1'
+      - '.github/workflows/powershell-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse PowerShell sources
+        shell: pwsh
+        run: |
+          $failed = $false
+          Get-ChildItem -Recurse -Filter *.ps1 | ForEach-Object {
+            $tokens = $null
+            $errors = $null
+            [void][System.Management.Automation.Language.Parser]::ParseFile(
+              $_.FullName,
+              [ref]$tokens,
+              [ref]$errors
+            )
+            if ($errors.Count) {
+              $failed = $true
+              $errors | ForEach-Object {
+                Write-Error "$($_.Extent.File):$($_.Extent.StartLineNumber): $($_.Message)"
+              }
+            }
+          }
+          if ($failed) { throw 'PowerShell parser validation failed.' }
+      - name: Test backup and restore safety
+        shell: pwsh
+        run: ./Tools/Test-RestoreSafety.ps1
