@@ -23,6 +23,8 @@ $requiredFunctions = @(
     'Get-FileHashSafe',
     'Backup-Target',
     'Complete-BackupManifest',
+    'Set-BackupExpectedHashes',
+    'Restore-BackupPath',
     'Restore-LastBackup'
 )
 $definitions = $ast.FindAll({
@@ -78,6 +80,34 @@ try {
     $script:txtFolder.Text = $target
     Restore-LastBackup
     Assert-Equal 'user-change' (Get-Content -LiteralPath (Join-Path $target 'version.dll') -Raw) 'User-modified file was removed'
+
+    # An incomplete manifest must not overwrite a file with an unknown state.
+    $target = Join-Path $root 'incomplete-manifest'
+    New-Item -ItemType Directory -Path $target | Out-Null
+    Set-Content -LiteralPath (Join-Path $target 'OptiScaler.ini') -Value 'original' -NoNewline
+    $backup = Backup-Target $target @('OptiScaler.ini')
+    Set-Content -LiteralPath (Join-Path $target 'OptiScaler.ini') -Value 'external-change' -NoNewline
+    $result = Restore-BackupPath $target $backup
+    Assert-Equal 'external-change' (Get-Content -LiteralPath (Join-Path $target 'OptiScaler.ini') -Raw) 'Incomplete manifest overwrote an unknown file state'
+    Assert-Equal 1 $result.skipped 'Incomplete manifest was not reported as skipped'
+
+    # Planned hashes allow a failed deployment to roll back only exact staged bytes.
+    $target = Join-Path $root 'planned-rollback'
+    New-Item -ItemType Directory -Path $target | Out-Null
+    Set-Content -LiteralPath (Join-Path $target 'OptiScaler.ini') -Value 'original' -NoNewline
+    $backup = Backup-Target $target @('OptiScaler.ini','dxgi.dll')
+    $stagedIni = Join-Path $root 'staged.ini';$stagedDll = Join-Path $root 'staged.dll'
+    Set-Content -LiteralPath $stagedIni -Value 'deployed-ini' -NoNewline
+    Set-Content -LiteralPath $stagedDll -Value 'deployed-dll' -NoNewline
+    $expected = @{'OptiScaler.ini'=(Get-FileHashSafe $stagedIni);'dxgi.dll'=(Get-FileHashSafe $stagedDll)}
+    Set-BackupExpectedHashes $backup $expected
+    Copy-Item -LiteralPath $stagedIni -Destination (Join-Path $target 'OptiScaler.ini')
+    Copy-Item -LiteralPath $stagedDll -Destination (Join-Path $target 'dxgi.dll')
+    $result = Restore-BackupPath $target $backup
+    Assert-Equal 'original' (Get-Content -LiteralPath (Join-Path $target 'OptiScaler.ini') -Raw) 'Planned rollback did not restore original'
+    Assert-Equal $false (Test-Path -LiteralPath (Join-Path $target 'dxgi.dll')) 'Planned rollback did not remove new file'
+    Assert-Equal 1 $result.restored 'Planned rollback restore count'
+    Assert-Equal 1 $result.removed 'Planned rollback remove count'
 
     Write-Host 'Restore safety tests passed.'
 }

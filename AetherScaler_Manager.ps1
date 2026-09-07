@@ -108,6 +108,35 @@ function Complete-BackupManifest([string]$Backup,[string]$Folder,[string[]]$Name
     }
     Save-JsonFile $path $manifest
 }
+function Set-BackupExpectedHashes([string]$Backup,$ExpectedHashes){
+    $path=Join-Path $Backup 'backup_manifest.json';$manifest=Read-JsonFile $path
+    if(!$manifest){throw 'Backup manifest could not be read.'}
+    foreach($entry in @($manifest.files)){
+        $name=[string]$entry.name
+        if($ExpectedHashes.ContainsKey($name)){$entry.deployed_sha256=[string]$ExpectedHashes[$name]}
+    }
+    Save-JsonFile $path $manifest
+}
+function Restore-BackupPath([string]$Folder,[string]$Backup){
+    $manifest=Read-JsonFile (Join-Path $Backup 'backup_manifest.json')
+    if(!$manifest){throw 'Backup manifest could not be read.'}
+    $restored=0;$removed=0;$skipped=0;$unchanged=0
+    foreach($entry in @($manifest.files)){
+        $name=[string]$entry.name;$target=Join-Path $Folder $name;$currentHash=Get-FileHashSafe $target
+        $originalHash=[string]$entry.original_sha256;$deployedHash=[string]$entry.deployed_sha256
+        if([bool]$entry.existed){
+            $source=Join-Path $Backup $name
+            if(!(Test-Path -LiteralPath $source -PathType Leaf)){$skipped++;continue}
+            if($originalHash -and $currentHash -eq $originalHash){$unchanged++;continue}
+            if(!$deployedHash -or !$currentHash -or $currentHash -ne $deployedHash){$skipped++;continue}
+            Copy-Item -LiteralPath $source -Destination $target -Force;$restored++
+        } elseif(Test-Path -LiteralPath $target -PathType Leaf) {
+            if($deployedHash -and $currentHash -eq $deployedHash){Remove-Item -LiteralPath $target -Force;$removed++}
+            else {$skipped++}
+        } else {$unchanged++}
+    }
+    return [pscustomobject]@{restored=$restored;removed=$removed;skipped=$skipped;unchanged=$unchanged}
+}
 function Set-IniValue([string]$Path,[string]$Section,[string]$Key,[string]$Value){
     $lines=[System.Collections.Generic.List[string]](Get-Content -LiteralPath $Path)
     $sec="[$Section]";$secIdx=-1;$nextSec=$lines.Count
@@ -134,30 +163,50 @@ function Apply-Profile {
     if(Has-AntiCheat $folder){Msg 'anticheat_block' Warning;return}
     Apply-QuickPreset
     $hook=[string]$cmbHook.SelectedItem
-    $names=@($hook,'OptiScaler.ini','amd_fidelityfx_dx12.dll','amd_fidelityfx_upscaler_dx12.dll','amd_fidelityfx_framegeneration_dx12.dll','amd_fidelityfx_vk.dll','fakenvapi.dll','fakenvapi.ini','libxess.dll','libxess_dx11.dll','libxess_fg.dll','libxell.dll','dlssg_to_fsr3_amd_is_better.dll')
-    $backup=Backup-Target $folder $names
-    Copy-Item (Join-Path $RuntimeDir 'OptiScaler.dll') (Join-Path $folder $hook) -Force
-    $ini=Join-Path $folder 'OptiScaler.ini';if(!(Test-Path $ini)){Copy-Item (Join-Path $RuntimeDir 'OptiScaler.ini.template') $ini -Force}
-    foreach($n in $names | Where-Object {$_ -ne $hook -and $_ -ne 'OptiScaler.ini'}){$p=Join-Path $RuntimeDir $n;if(Test-Path $p){Copy-Item $p (Join-Path $folder $n) -Force}}
-    Set-IniValue $ini 'Upscalers' 'Dx11Upscaler' ([string]$cmbDx11.SelectedItem)
-    Set-IniValue $ini 'Upscalers' 'Dx12Upscaler' ([string]$cmbDx12.SelectedItem)
-    Set-IniValue $ini 'Upscalers' 'VulkanUpscaler' ([string]$cmbVk.SelectedItem)
-    Set-IniValue $ini 'FrameGen' 'Enabled' ($(if($chkFG.Checked){'true'}else{'false'}))
-    Set-IniValue $ini 'FrameGen' 'FGInput' ([string]$cmbFGIn.SelectedItem)
-    Set-IniValue $ini 'FrameGen' 'FGOutput' ([string]$cmbFGOut.SelectedItem)
-    Set-IniValue $ini 'Menu' 'OverlayMenu' 'true';Set-IniValue $ini 'Menu' 'ShowFps' ($(if($chkFPS.Checked){'true'}else{'false'}));Set-IniValue $ini 'Menu' 'Scale' $numScale.Value.ToString([Globalization.CultureInfo]::InvariantCulture)
-    $spoof=[string]$cmbSpoof.SelectedItem
-    if($spoof -eq 'Off'){
-        Set-IniValue $ini 'Spoofing' 'Dxgi' 'false';Set-IniValue $ini 'Spoofing' 'Vulkan' 'false';Set-IniValue $ini 'Spoofing' 'StreamlineSpoofing' 'false'
-    }else{
-        $vid='0x10de';$did='0x2684';$name='NVIDIA GeForce RTX 4090'
-        if($spoof -eq 'Intel Arc B580'){$vid='0x8086';$did='0xE20B';$name='Intel(R) Arc(TM) B580 Graphics'}
-        elseif($spoof -eq 'AMD RX 9070 XT'){$vid='0x1002';$did='0x7550';$name='AMD Radeon RX 9070 XT'}
-        Set-IniValue $ini 'Spoofing' 'SpoofedVendorId' $vid;Set-IniValue $ini 'Spoofing' 'SpoofedDeviceId' $did;Set-IniValue $ini 'Spoofing' 'SpoofedGPUName' $name
-        Set-IniValue $ini 'Spoofing' 'Dxgi' ($(if($chkDxgi.Checked){'true'}else{'false'}));Set-IniValue $ini 'Spoofing' 'Vulkan' ($(if($chkVkSpoof.Checked){'true'}else{'false'}));Set-IniValue $ini 'Spoofing' 'StreamlineSpoofing' ($(if($chkSL.Checked){'true'}else{'false'}));Set-IniValue $ini 'Spoofing' 'UEIntelAtomics' ($(if($chkUEIntel.Checked){'true'}else{'false'}))
+    $runtimeNames=@('amd_fidelityfx_dx12.dll','amd_fidelityfx_upscaler_dx12.dll','amd_fidelityfx_framegeneration_dx12.dll','amd_fidelityfx_vk.dll','fakenvapi.dll','fakenvapi.ini','libxess.dll','libxess_dx11.dll','libxess_fg.dll','libxell.dll','dlssg_to_fsr3_amd_is_better.dll')
+    $core=Join-Path $RuntimeDir 'OptiScaler.dll';if(!(Test-Path -LiteralPath $core -PathType Leaf)){throw 'Runtime OptiScaler.dll is missing.'}
+    $ini=Join-Path $folder 'OptiScaler.ini';$template=Join-Path $RuntimeDir 'OptiScaler.ini.template'
+    if(!(Test-Path -LiteralPath $ini -PathType Leaf) -and !(Test-Path -LiteralPath $template -PathType Leaf)){throw 'OptiScaler.ini template is missing.'}
+    $stage=Join-Path ([IO.Path]::GetTempPath()) ('AetherScaler-Stage-'+[guid]::NewGuid())
+    $backup=$null
+    try {
+        New-Item -ItemType Directory -Path $stage|Out-Null
+        Copy-Item -LiteralPath $core -Destination (Join-Path $stage $hook)
+        Copy-Item -LiteralPath $(if(Test-Path -LiteralPath $ini -PathType Leaf){$ini}else{$template}) -Destination (Join-Path $stage 'OptiScaler.ini')
+        foreach($n in $runtimeNames){$p=Join-Path $RuntimeDir $n;if(Test-Path -LiteralPath $p -PathType Leaf){Copy-Item -LiteralPath $p -Destination (Join-Path $stage $n)}}
+        $stagedIni=Join-Path $stage 'OptiScaler.ini'
+        Set-IniValue $stagedIni 'Upscalers' 'Dx11Upscaler' ([string]$cmbDx11.SelectedItem)
+        Set-IniValue $stagedIni 'Upscalers' 'Dx12Upscaler' ([string]$cmbDx12.SelectedItem)
+        Set-IniValue $stagedIni 'Upscalers' 'VulkanUpscaler' ([string]$cmbVk.SelectedItem)
+        Set-IniValue $stagedIni 'FrameGen' 'Enabled' ($(if($chkFG.Checked){'true'}else{'false'}))
+        Set-IniValue $stagedIni 'FrameGen' 'FGInput' ([string]$cmbFGIn.SelectedItem)
+        Set-IniValue $stagedIni 'FrameGen' 'FGOutput' ([string]$cmbFGOut.SelectedItem)
+        Set-IniValue $stagedIni 'Menu' 'OverlayMenu' 'true';Set-IniValue $stagedIni 'Menu' 'ShowFps' ($(if($chkFPS.Checked){'true'}else{'false'}));Set-IniValue $stagedIni 'Menu' 'Scale' $numScale.Value.ToString([Globalization.CultureInfo]::InvariantCulture)
+        $spoof=[string]$cmbSpoof.SelectedItem
+        if($spoof -eq 'Off'){
+            Set-IniValue $stagedIni 'Spoofing' 'Dxgi' 'false';Set-IniValue $stagedIni 'Spoofing' 'Vulkan' 'false';Set-IniValue $stagedIni 'Spoofing' 'StreamlineSpoofing' 'false'
+        }else{
+            $vid='0x10de';$did='0x2684';$name='NVIDIA GeForce RTX 4090'
+            if($spoof -eq 'Intel Arc B580'){$vid='0x8086';$did='0xE20B';$name='Intel(R) Arc(TM) B580 Graphics'}
+            elseif($spoof -eq 'AMD RX 9070 XT'){$vid='0x1002';$did='0x7550';$name='AMD Radeon RX 9070 XT'}
+            Set-IniValue $stagedIni 'Spoofing' 'SpoofedVendorId' $vid;Set-IniValue $stagedIni 'Spoofing' 'SpoofedDeviceId' $did;Set-IniValue $stagedIni 'Spoofing' 'SpoofedGPUName' $name
+            Set-IniValue $stagedIni 'Spoofing' 'Dxgi' ($(if($chkDxgi.Checked){'true'}else{'false'}));Set-IniValue $stagedIni 'Spoofing' 'Vulkan' ($(if($chkVkSpoof.Checked){'true'}else{'false'}));Set-IniValue $stagedIni 'Spoofing' 'StreamlineSpoofing' ($(if($chkSL.Checked){'true'}else{'false'}));Set-IniValue $stagedIni 'Spoofing' 'UEIntelAtomics' ($(if($chkUEIntel.Checked){'true'}else{'false'}))
+        }
+        $stagedFiles=@(Get-ChildItem -LiteralPath $stage -File);$names=@($stagedFiles|ForEach-Object Name)
+        $backup=Backup-Target $folder $names
+        $expected=@{};foreach($file in $stagedFiles){$expected[$file.Name]=Get-FileHashSafe $file.FullName}
+        Set-BackupExpectedHashes $backup $expected
+        foreach($file in $stagedFiles){
+            $target=Join-Path $folder $file.Name;Copy-Item -LiteralPath $file.FullName -Destination $target -Force
+            if((Get-FileHashSafe $target) -ne $expected[$file.Name]){throw "Deployment verification failed: $($file.Name)"}
+        }
+        $statusLabel.Text=(T 'status_applied')+" — $backup"
+    } catch {
+        if($backup){$result=Restore-BackupPath $folder $backup;$statusLabel.Text="Deployment failed; rollback restored $($result.restored), removed $($result.removed), skipped $($result.skipped)."}
+        throw
+    } finally {
+        if(Test-Path -LiteralPath $stage){Remove-Item -LiteralPath $stage -Recurse -Force -ErrorAction SilentlyContinue}
     }
-    Complete-BackupManifest $backup $folder $names
-    $statusLabel.Text=(T 'status_applied')+" — $backup"
 }
 function Restore-LastBackup {
     $folder=$txtFolder.Text.Trim();$root=Join-Path $folder '.AetherScaler_Backup';if(!(Test-Path $root)){return}
@@ -168,21 +217,8 @@ function Restore-LastBackup {
         $statusLabel.Text=(T 'status_restored')+' — legacy backup'
         return
     }
-    $restored=0;$removed=0;$skipped=0
-    foreach($entry in @($manifest.files)){
-        $name=[string]$entry.name;$target=Join-Path $folder $name;$currentHash=Get-FileHashSafe $target
-        $deployedHash=[string]$entry.deployed_sha256
-        if([bool]$entry.existed){
-            $source=Join-Path $last.FullName $name
-            if(!(Test-Path -LiteralPath $source -PathType Leaf)){$skipped++;continue}
-            if($deployedHash -and $currentHash -and $currentHash -ne $deployedHash){$skipped++;continue}
-            Copy-Item -LiteralPath $source -Destination $target -Force;$restored++
-        } elseif(Test-Path -LiteralPath $target -PathType Leaf) {
-            if($deployedHash -and $currentHash -eq $deployedHash){Remove-Item -LiteralPath $target -Force;$removed++}
-            else {$skipped++}
-        }
-    }
-    $statusLabel.Text=(T 'status_restored')+" — restored: $restored, removed: $removed, skipped: $skipped"
+    $result=Restore-BackupPath $folder $last.FullName
+    $statusLabel.Text=(T 'status_restored')+" — restored: $($result.restored), removed: $($result.removed), skipped: $($result.skipped)"
 }
 function Get-FileVersionSafe([string]$Path){
     if(!(Test-Path -LiteralPath $Path)){return '—'}

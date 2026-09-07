@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.3 — 2026-09-07
+- Stage every selected runtime file and the completed INI before touching the game directory.
+- Record expected deployed SHA256 values before the first target copy.
+- Automatically roll back exact staged bytes after a partial deployment failure.
+- Treat incomplete manifests as untrusted and preserve unknown target states.
+- Added tests for incomplete-manifest safety and planned partial-deployment rollback.
+
 ## 1.1.2 — 2026-09-07
 - Made deployment restore fully reversible for files that did not exist before deployment.
 - Added a per-backup manifest with original and deployed SHA256 hashes.

@@ -1,4 +1,4 @@
-# AetherScaler Bridge 1.1.2 / 三芯橋
+# AetherScaler Bridge 1.1.3 / 三芯橋
 
 A compact, multilingual deployment and configuration layer for OptiScaler-based single-player/offline modding workflows.
 
@@ -18,13 +18,15 @@ Run `Launch_AetherScaler.cmd` on Windows 10/11 with PowerShell 5.1+.
 If the main UI cannot start, run `Launch_Diagnostics.cmd` to create a standalone support bundle.
 
 ## Diagnostics
-AetherScaler 1.1.2 can generate `SupportBundles/AetherScaler_Support_*.zip` containing relevant local logs, SDK tracker/manifest, configuration summary, OS/GPU/driver information, runtime DLL versions and SHA256 hashes. User name, user-profile path and selected game folder are redacted from copied text logs. Nothing is uploaded automatically; review the archive before public sharing.
+AetherScaler 1.1.3 can generate `SupportBundles/AetherScaler_Support_*.zip` containing relevant local logs, SDK tracker/manifest, configuration summary, OS/GPU/driver information, runtime DLL versions and SHA256 hashes. User name, user-profile path and selected game folder are redacted from copied text logs. Nothing is uploaded automatically; review the archive before public sharing.
 
 ## Update model
 The updater uses an **audit-and-stage** design. It checks official GitHub releases for OptiScaler, Intel XeSS, NVIDIA Streamline and AMD FidelityFX. New SDK archives are downloaded into `SDK_Archives`; vendor DLLs are not blindly hot-swapped into a working game installation.
 
 ## Restore safety
 Each deployment writes `.AetherScaler_Backup/<timestamp>/backup_manifest.json` with the original/deployed SHA256 state. Restore removes a newly deployed file only when it is still byte-for-byte equal to the deployed copy, and restores an overwritten original only when the current file has not been changed afterward. Conflicting files are left untouched and counted as skipped.
+
+Version 1.1.3 first prepares the complete INI and runtime selection in a temporary staging directory, records all expected hashes, and only then begins copying into the game directory. If any target copy or verification fails, exact staged bytes are rolled back automatically; unknown or concurrently modified bytes are preserved and reported as skipped.
 
 Backups created before 1.1.2 remain readable in legacy restore mode, but do not have the newer post-deployment change protection.
 
