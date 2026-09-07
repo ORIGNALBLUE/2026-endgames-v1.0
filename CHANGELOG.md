@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.2 — 2026-09-07
+- Made deployment restore fully reversible for files that did not exist before deployment.
+- Added a per-backup manifest with original and deployed SHA256 hashes.
+- Restore now preserves files changed by the user after deployment instead of overwriting or deleting them.
+- Increased backup directory timestamp precision to milliseconds.
+- Added Windows CI parser validation and automated restore-safety tests.
+
 ## 1.1.1 — 2026-09-05
 - Added privacy-aware local session logging.
 - Added one-click Support Bundle export for future troubleshooting.
