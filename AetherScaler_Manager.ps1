@@ -81,11 +81,32 @@ function Has-AntiCheat([string]$Folder){
     }
     return $false
 }
+function Get-FileHashSafe([string]$Path){
+    if(!(Test-Path -LiteralPath $Path -PathType Leaf)){return $null}
+    try {return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant()} catch {return $null}
+}
 function Backup-Target([string]$Folder,[string[]]$Names){
     $root=Join-Path $Folder '.AetherScaler_Backup'; New-Item -ItemType Directory -Force -Path $root|Out-Null
-    $dst=Join-Path $root (Get-Date -Format 'yyyyMMdd-HHmmss');New-Item -ItemType Directory -Force -Path $dst|Out-Null
-    foreach($n in $Names){$p=Join-Path $Folder $n;if(Test-Path -LiteralPath $p){Copy-Item -LiteralPath $p -Destination (Join-Path $dst $n) -Force}}
+    $dst=Join-Path $root (Get-Date -Format 'yyyyMMdd-HHmmss-fff');New-Item -ItemType Directory -Force -Path $dst|Out-Null
+    $entries=@()
+    foreach($n in $Names){
+        $p=Join-Path $Folder $n
+        $existed=Test-Path -LiteralPath $p -PathType Leaf
+        $originalHash=$(if($existed){Get-FileHashSafe $p}else{$null})
+        if($existed){Copy-Item -LiteralPath $p -Destination (Join-Path $dst $n) -Force}
+        $entries += [pscustomobject]@{name=$n;existed=[bool]$existed;original_sha256=$originalHash;deployed_sha256=$null}
+    }
+    Save-JsonFile (Join-Path $dst 'backup_manifest.json') ([pscustomobject]@{schema_version=1;created_at=(Get-Date).ToUniversalTime().ToString('o');target=$Folder;files=$entries})
     return $dst
+}
+function Complete-BackupManifest([string]$Backup,[string]$Folder,[string[]]$Names){
+    $path=Join-Path $Backup 'backup_manifest.json';$manifest=Read-JsonFile $path
+    if(!$manifest){throw 'Backup manifest could not be read.'}
+    foreach($entry in @($manifest.files)){
+        $target=Join-Path $Folder ([string]$entry.name)
+        $entry.deployed_sha256=Get-FileHashSafe $target
+    }
+    Save-JsonFile $path $manifest
 }
 function Set-IniValue([string]$Path,[string]$Section,[string]$Key,[string]$Value){
     $lines=[System.Collections.Generic.List[string]](Get-Content -LiteralPath $Path)
@@ -135,13 +156,33 @@ function Apply-Profile {
         Set-IniValue $ini 'Spoofing' 'SpoofedVendorId' $vid;Set-IniValue $ini 'Spoofing' 'SpoofedDeviceId' $did;Set-IniValue $ini 'Spoofing' 'SpoofedGPUName' $name
         Set-IniValue $ini 'Spoofing' 'Dxgi' ($(if($chkDxgi.Checked){'true'}else{'false'}));Set-IniValue $ini 'Spoofing' 'Vulkan' ($(if($chkVkSpoof.Checked){'true'}else{'false'}));Set-IniValue $ini 'Spoofing' 'StreamlineSpoofing' ($(if($chkSL.Checked){'true'}else{'false'}));Set-IniValue $ini 'Spoofing' 'UEIntelAtomics' ($(if($chkUEIntel.Checked){'true'}else{'false'}))
     }
+    Complete-BackupManifest $backup $folder $names
     $statusLabel.Text=(T 'status_applied')+" — $backup"
 }
 function Restore-LastBackup {
     $folder=$txtFolder.Text.Trim();$root=Join-Path $folder '.AetherScaler_Backup';if(!(Test-Path $root)){return}
     $last=Get-ChildItem $root -Directory|Sort-Object Name -Descending|Select-Object -First 1;if(!$last){return}
-    Get-ChildItem $last.FullName -File|ForEach-Object{Copy-Item $_.FullName (Join-Path $folder $_.Name) -Force}
-    $statusLabel.Text=T 'status_restored'
+    $manifest=Read-JsonFile (Join-Path $last.FullName 'backup_manifest.json')
+    if(!$manifest){
+        Get-ChildItem $last.FullName -File|Where-Object {$_.Name -ne 'backup_manifest.json'}|ForEach-Object{Copy-Item $_.FullName (Join-Path $folder $_.Name) -Force}
+        $statusLabel.Text=(T 'status_restored')+' — legacy backup'
+        return
+    }
+    $restored=0;$removed=0;$skipped=0
+    foreach($entry in @($manifest.files)){
+        $name=[string]$entry.name;$target=Join-Path $folder $name;$currentHash=Get-FileHashSafe $target
+        $deployedHash=[string]$entry.deployed_sha256
+        if([bool]$entry.existed){
+            $source=Join-Path $last.FullName $name
+            if(!(Test-Path -LiteralPath $source -PathType Leaf)){$skipped++;continue}
+            if($deployedHash -and $currentHash -and $currentHash -ne $deployedHash){$skipped++;continue}
+            Copy-Item -LiteralPath $source -Destination $target -Force;$restored++
+        } elseif(Test-Path -LiteralPath $target -PathType Leaf) {
+            if($deployedHash -and $currentHash -eq $deployedHash){Remove-Item -LiteralPath $target -Force;$removed++}
+            else {$skipped++}
+        }
+    }
+    $statusLabel.Text=(T 'status_restored')+" — restored: $restored, removed: $removed, skipped: $skipped"
 }
 function Get-FileVersionSafe([string]$Path){
     if(!(Test-Path -LiteralPath $Path)){return '—'}
