@@ -1,6 +1,6 @@
 {
   "language_name": "English",
-  "app_title": "AetherScaler Bridge 1.1.1",
+  "app_title": "AetherScaler Bridge 1.1.4",
   "tab_home": "Home",
   "tab_advanced": "Advanced",
   "tab_sdk": "SDK & Updates",
@@ -22,6 +22,7 @@
   "status_ready": "Ready",
   "status_applied": "Applied successfully",
   "status_restored": "Latest backup restored",
+  "legacy_restore_blocked": "Legacy backup has no SHA256 manifest. Automatic restore was blocked; inspect and restore it manually.",
   "folder_required": "Select the game executable folder first.",
   "anticheat_block": "Anti-cheat markers were detected. Automatic deployment is blocked.",
   "advanced_note": "Advanced settings override the quick preset.",

@@ -109,6 +109,20 @@ try {
     Assert-Equal 1 $result.restored 'Planned rollback restore count'
     Assert-Equal 1 $result.removed 'Planned rollback remove count'
 
+    # Legacy backups have no deployed hash and must never overwrite a current file.
+    $target = Join-Path $root 'legacy-backup'
+    New-Item -ItemType Directory -Path $target | Out-Null
+    $legacyRoot = Join-Path $target '.AetherScaler_Backup'
+    $legacy = Join-Path $legacyRoot '20200101-000000'
+    New-Item -ItemType Directory -Path $legacy | Out-Null
+    Set-Content -LiteralPath (Join-Path $legacy 'OptiScaler.ini') -Value 'legacy-original' -NoNewline
+    Set-Content -LiteralPath (Join-Path $target 'OptiScaler.ini') -Value 'current-user-change' -NoNewline
+    $script:txtFolder.Text = $target
+    $script:statusLabel.Text = ''
+    Restore-LastBackup
+    Assert-Equal 'current-user-change' (Get-Content -LiteralPath (Join-Path $target 'OptiScaler.ini') -Raw) 'Legacy restore overwrote an unverifiable current file'
+    Assert-Equal 'legacy_restore_blocked' $script:statusLabel.Text 'Legacy restore did not report the safety block'
+
     Write-Host 'Restore safety tests passed.'
 }
 finally {

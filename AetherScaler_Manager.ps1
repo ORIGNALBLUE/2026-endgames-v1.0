@@ -213,8 +213,10 @@ function Restore-LastBackup {
     $last=Get-ChildItem $root -Directory|Sort-Object Name -Descending|Select-Object -First 1;if(!$last){return}
     $manifest=Read-JsonFile (Join-Path $last.FullName 'backup_manifest.json')
     if(!$manifest){
-        Get-ChildItem $last.FullName -File|Where-Object {$_.Name -ne 'backup_manifest.json'}|ForEach-Object{Copy-Item $_.FullName (Join-Path $folder $_.Name) -Force}
-        $statusLabel.Text=(T 'status_restored')+' — legacy backup'
+        # A legacy backup has no deployed hashes.  It cannot prove that the
+        # current target still belongs to AetherScaler, so automatic overwrite
+        # would risk destroying a later user or game update.
+        $statusLabel.Text=T 'legacy_restore_blocked'
         return
     }
     $result=Restore-BackupPath $folder $last.FullName

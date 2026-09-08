@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.4 — 2026-09-08
+- Block automatic restore of legacy backups that have no SHA256 manifest.
+- Preserve current files when the tool cannot prove that they are unchanged AetherScaler deployments.
+- Add a regression test for legacy-backup overwrite prevention.
+
 ## 1.1.3 — 2026-09-07
 - Stage every selected runtime file and the completed INI before touching the game directory.
 - Record expected deployed SHA256 values before the first target copy.
