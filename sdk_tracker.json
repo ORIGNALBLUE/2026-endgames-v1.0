@@ -1,6 +1,6 @@
 {
-  "checked_at": "2026-11-16T11:33:51Z",
-  "optiscaler": "0.9.4",
+  "checked_at": "2026-11-17T11:59:06Z",
+  "optiscaler": "0.9.5",
   "intel_xess": "3.0.2",
   "nvidia_streamline": "2.14.16",
   "amd_fsr": "2.4.0",
@@ -8,7 +8,7 @@
   "amd_upscaling": "4.1.2",
   "amd_fg": "3.1.6",
   "sources": {
-    "optiscaler": "https://github.com/optiscaler/OptiScaler/releases/tag/v0.9.4",
+    "optiscaler": "https://github.com/optiscaler/OptiScaler/releases/tag/v0.9.5",
     "intel": "https://github.com/intel/xess/releases/tag/v3.0.2",
     "nvidia": "https://github.com/NVIDIA-RTX/Streamline/releases/tag/v2.14.16",
     "amd": "https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK/releases/tag/v2.4.0"
